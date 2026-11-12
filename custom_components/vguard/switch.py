@@ -29,6 +29,7 @@ SWITCHES = (
     VGuardSwitchDescription(key="extra_backup", vg="VG072", name="Extra Backup Mode", icon="mdi:battery-clock"),
     VGuardSwitchDescription(key="force_cut", vg="VG038", name="Grid Force Cut", icon="mdi:transmission-tower-off"),
     VGuardSwitchDescription(key="day_time_load_usage", vg="VG185", name="Day-time Load Usage", icon="mdi:weather-sunny"),
+    VGuardSwitchDescription(key="advanced_low_battery_alarm", vg="VG071", name="Advance Low Battery Alarm", icon="mdi:battery-alert"),
 )
 
 
@@ -70,7 +71,11 @@ class VGuardSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def is_on(self):
         v = self._frame_value()
-        return bool(v) if v is not None else None
+        if v is None:
+            return None
+        if self.entity_description.key == "advanced_low_battery_alarm":
+            return v == 1100
+        return bool(v)
 
     async def async_turn_on(self, **kwargs):
         await self._publish("1")
