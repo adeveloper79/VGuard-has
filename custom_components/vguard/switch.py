@@ -28,6 +28,7 @@ SWITCHES = (
     VGuardSwitchDescription(key="holiday_mode", vg="VG100", name="Holiday Mode", icon="mdi:palm-tree"),
     VGuardSwitchDescription(key="extra_backup", vg="VG072", name="Extra Backup Mode", icon="mdi:battery-clock"),
     VGuardSwitchDescription(key="force_cut", vg="VG038", name="Grid Force Cut", icon="mdi:transmission-tower-off"),
+    VGuardSwitchDescription(key="day_time_load_usage", vg="VG185", name="Day-time Load Usage", icon="mdi:weather-sunny"),
 )
 
 

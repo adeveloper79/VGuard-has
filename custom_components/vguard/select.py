@@ -25,19 +25,19 @@ class VGuardSelectDescription(SelectEntityDescription):
 
 SELECTS = (
     VGuardSelectDescription(
-        key="reserve_power",
-        vg="VG035",
-        name="Reserve Power at",
-        icon="mdi:clock-time-six",
+        key="night_forced_cut",
+        vg="VG219",
+        name="Night Forced Cut time",
+        icon="mdi:weather-night",
         options_map=(
-            ("No cut", "0"),
-            ("06:00 PM", "1"),
-            ("07:00 PM", "2"),
-            ("08:00 PM", "3"),
-            ("09:00 PM", "4"),
-            ("10:00 PM", "5"),
-            ("11:00 PM", "6"),
-            ("00:00 AM", "7"),
+            ("No Force Cut", "14400"),
+            ("06:00 PM", "32400"),
+            ("07:00 PM", "34200"),
+            ("08:00 PM", "36000"),
+            ("09:00 PM", "37800"),
+            ("10:00 PM", "39600"),
+            ("11:00 PM", "41400"),
+            ("00:00 AM", "0"),
         ),
     ),
     VGuardSelectDescription(

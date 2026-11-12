@@ -19,7 +19,9 @@ entities:
   - entity: switch.smart_pro_1200_s_holiday_mode
   - entity: switch.smart_pro_1200_s_extra_backup_mode
   - entity: switch.smart_pro_1200_s_grid_force_cut
-  - entity: select.smart_pro_1200_s_reserve_power_at
+  - entity: select.smart_pro_1200_s_night_forced_cut_time
+  - entity: number.smart_pro_1200_s_backup_performance_level
+  - entity: switch.smart_pro_1200_s_day_time_load_usage
   - entity: select.smart_pro_1200_s_force_cut_duration
   - entity: select.smart_pro_1200_s_load_exceeds_alarm
   - entity: button.smart_pro_1200_s_battery_type_unlock_30_min

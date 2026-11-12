@@ -14,7 +14,7 @@ APP_HEADERS = {
     "platform-model": "android-SMART PRO",
 }
 
-PLATFORMS = ["sensor", "binary_sensor", "switch", "select", "button"]
+PLATFORMS = ["sensor", "binary_sensor", "switch", "select", "button", "number"]
 
 CONF_SERIAL = "serial"
 CONF_PRODUCT_TYPE = "product_type"
