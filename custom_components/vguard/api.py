@@ -171,7 +171,7 @@ class VGuardApi:
             "POST",
             {"topic": topic, "payload": payload},
         )
-        if status == 200:
+        if 200 <= status < 300:
             return True
         raise VGuardPublishError("publish failed: HTTP %s (%s)" % (status, _format_error(resp)))
 
