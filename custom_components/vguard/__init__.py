@@ -31,7 +31,7 @@ async def _async_register_card(hass: HomeAssistant) -> None:
     import os
 
     cards = [
-        ("vguard-inverter-card.js", "/vguard/vguard-inverter-card.js?v=1.1.0"),
+        ("vguard-inverter-card.js", "/vguard/vguard-inverter-card.js?v=1.2.0"),
         ("vguard-reserve-card.js", "/vguard/vguard-reserve-card.js?v=1.0.0"),
     ]
     www_dir = os.path.join(os.path.dirname(__file__), "www")
