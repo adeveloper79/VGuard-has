@@ -126,7 +126,7 @@ class VGuardReserveCard extends HTMLElement {
   }
 }
 
-customElements.define("vguard-reserve-card", VGuardReserveCard);
+if (!customElements.get("vguard-reserve-card")) { customElements.define("vguard-reserve-card", VGuardReserveCard); }
 
 window.customCards = window.customCards || [];
 window.customCards.push({

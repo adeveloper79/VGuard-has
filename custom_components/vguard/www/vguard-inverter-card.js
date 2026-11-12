@@ -139,7 +139,7 @@ class VGuardInverterCard extends HTMLElement {
   }
 }
 
-customElements.define("vguard-inverter-card", VGuardInverterCard);
+if (!customElements.get("vguard-inverter-card")) { customElements.define("vguard-inverter-card", VGuardInverterCard); }
 
 window.customCards = window.customCards || [];
 window.customCards.push({

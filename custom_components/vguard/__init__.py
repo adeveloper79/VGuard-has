@@ -62,22 +62,35 @@ async def _async_register_card(hass: HomeAssistant) -> None:
 
         for url in urls:
             add_extra_js_url(hass, url)
-        return
     except Exception as err:  # noqa: BLE001
-        _LOGGER.debug("add_extra_js_url unavailable, trying lovelace resources: %s", err)
+        _LOGGER.debug("add_extra_js_url unavailable: %s", err)
+    else:
+        pass
+    # Also register as persistent Lovelace module resources (like HACS) so the
+    # dashboard loads the cards reliably even on cold-cache boots.
     try:
-        lovelace = hass.data.get("lovelace")
-        resources = getattr(lovelace, "resources", None) if lovelace else None
-        if resources is None:
-            _LOGGER.warning("lovelace resources API not found; add the cards as module resources manually")
-            return
-        items = await resources.async_items()
-        existing = [str(i.get("url", "")) for i in items]
-        for url in urls:
-            if not any(u.startswith(url.split("?")[0]) for u in existing):
-                await resources.async_create_item({"res_type": "module", "url": url})
+        from homeassistant.components.lovelace.const import LOVELACE_DATA
+
+        data = hass.data.get(LOVELACE_DATA)
+        resources = getattr(data, "resources", None) if data else None
+        if resources is not None:
+            items = resources.async_items()
+            if hasattr(items, "__await__"):
+                items = await items
+            existing = [str(i.get("url", "")) for i in items]
+            for url in urls:
+                base = url.split("?")[0]
+                if any(u.split("?")[0] == base for u in existing):
+                    continue
+                try:
+                    await resources.async_create_item({"res_type": "module", "url": base})
+                    _LOGGER.info("registered Lovelace module resource: %s", base)
+                except Exception as err:  # noqa: BLE001
+                    _LOGGER.warning("could not create Lovelace resource %s: %s", base, err)
+        else:
+            _LOGGER.debug("lovelace resources not available; relying on extra module URLs")
     except Exception as err:  # noqa: BLE001
-        _LOGGER.warning("card resource registration failed; add the cards as module resources manually: %s", err)
+        _LOGGER.warning("lovelace resource registration failed: %s", err)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
