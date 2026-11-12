@@ -55,8 +55,8 @@ class VGuardOnlineSensor(CoordinatorEntity, BinarySensorEntity):
 class VGuardMainsSensor(CoordinatorEntity, BinarySensorEntity):
     """Derived mains indicator: ON when reported grid voltage > 100 V.
 
-    The NOUS frame carries no explicit mains flag the app uses; mains presence
-    is inferred from the grid input voltage field (VG014).
+    The app's own mains indicator: field f of the inverter state is true when
+    bit 8 (0x08) of frame VG095 is set. Currently TRUE = mains available.
     """
 
     def __init__(self, coordinator, entry):
@@ -84,10 +84,10 @@ class VGuardMainsSensor(CoordinatorEntity, BinarySensorEntity):
     def is_on(self):
         fields = (self.coordinator.data or {}).get("fields") or {}
         try:
-            return float(str(fields.get("VG014", "0")).strip()) > 100.0
+            return (int(float(str(fields.get("VG095", "0")).strip())) & 0x08) != 0
         except (TypeError, ValueError):
             return None
 
     @property
     def extra_state_attributes(self):
-        return {"derived_from": "grid voltage (VG014) > 100 V"}
+        return {"derived_from": "app formula: VG095 bit 0x08 (field f)"}

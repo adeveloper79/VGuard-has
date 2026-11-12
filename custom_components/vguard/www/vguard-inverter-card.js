@@ -106,7 +106,7 @@ class VGuardInverterCard extends HTMLElement {
         </div>
 
         <div class="foot">
-          <span>Mains ${this._state("binary_sensor", "mains") === "on" ? "ON" : "FAIL"} · WiFi ${this._fmt(s("sensor", "wifi_rssi"), " dBm")}</span>
+          <span>Mains ${this._state("binary_sensor", "mains") === "on" ? "ON" : "FAIL"} · ${this._fmt(s("sensor", "battery"))}% · WiFi ${this._fmt(s("sensor", "wifi_rssi"), " dBm")}</span>
           <span>Backup Lv. ${this._fmt(s("number", "battery_backup_level"))} / Perf Lv. ${this._fmt(s("number", "performance_level"))}</span>
         </div>
       </ha-card>

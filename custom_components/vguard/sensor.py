@@ -32,7 +32,7 @@ SENSORS = (
     VGuardSensorDescription(key="aux_discharge", vg="VG017", name="Aux discharge (÷10)", native_unit_of_measurement="A", device_class=SensorDeviceClass.CURRENT, state_class=SensorStateClass.MEASUREMENT, scale=10.0, icon="mdi:current-dc"),
     VGuardSensorDescription(key="energy_counter_a", vg="VG110", name="Energy counter A (raw)", native_unit_of_measurement=None, device_class=None, state_class=SensorStateClass.MEASUREMENT, scale=1.0, icon="mdi:counter"),
     VGuardSensorDescription(key="energy_counter_b", vg="VG042", name="Energy counter B (raw)", native_unit_of_measurement=None, device_class=None, state_class=SensorStateClass.MEASUREMENT, scale=1.0, icon="mdi:counter"),
-    VGuardSensorDescription(key="battery_percent_est", vg="VG016", name="Battery (est.)", native_unit_of_measurement="%", device_class=None, state_class=SensorStateClass.MEASUREMENT, scale=1.0, icon="mdi:battery-70"),
+    VGuardSensorDescription(key="battery_percent", vg="VG098", name="Battery", native_unit_of_measurement="%", device_class=SensorDeviceClass.BATTERY, state_class=SensorStateClass.MEASUREMENT, scale=1.0, icon="mdi:battery"),
 )
 
 
@@ -44,26 +44,30 @@ def _num(v, scale=1.0):
 
 
 
-def _soc_estimate(raw):
-    """Rough 12V lead-acid OCV->SOC estimate (open-circuit, no active charge/load).
+def _app_soc(fields):
+    """Battery SOC computed the same way the app does.
 
-    IMPORTANT: this frame does NOT carry a real battery percentage; the value is
-    an approximation only. Do not use it for automation decisions.
+    App (InverterStatusFragment y0 collector): if charge-state bitmask field h
+    (frame VG033) has bit 2048 set -> 'Battery Charged', percent = 100.
+    Otherwise percent = int(g * 100 / p) where g = frame VG098, p = frame VG104.
     """
+    if not fields:
+        return None
     try:
-        v = float(str(raw).strip())
+        h = int(float(str(fields.get("VG033", "0"))))
+    except (TypeError, ValueError):
+        h = 0
+    if h & 2048:
+        return 100.0
+    try:
+        g = float(str(fields.get("VG098", "0")))
+        p = float(str(fields.get("VG104", "0")))
     except (TypeError, ValueError):
         return None
-    table = [(12.66, 100), (12.45, 75), (12.24, 50), (12.06, 25), (11.80, 0)]
-    if v >= table[0][0]:
-        return 100.0
-    for i in range(len(table) - 1):
-        v_hi, soc_hi = table[i]
-        v_lo, soc_lo = table[i + 1]
-        if v >= v_lo and v <= v_hi:
-            frac = (v - v_lo) / (v_hi - v_lo)
-            return round(soc_lo + frac * (soc_hi - soc_lo), 0)
-    return 0.0
+    if p <= 0:
+        return None
+    pct = int((g * 100.0) / p)
+    return float(max(0, min(97, pct)))
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
@@ -96,17 +100,18 @@ class VGuardSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         fields = (self.coordinator.data or {}).get("fields") or {}
-        if self.entity_description.key == "battery_percent_est":
-            return _soc_estimate(fields.get("VG016"))
+        if self.entity_description.key == "battery_percent":
+            return _app_soc(fields)
         return _num(fields.get(self.entity_description.vg), self.entity_description.scale)
 
     @property
     def extra_state_attributes(self):
         fields = (self.coordinator.data or {}).get("fields") or {}
         attrs = {k.lower(): v for k, v in fields.items()}
-        if self.entity_description.key == "battery_percent_est":
-            attrs["estimated"] = True
-            attrs["basis"] = "12V lead-acid OCV curve (no real SOC in the VG029 frame)"
+        if self.entity_description.key == "battery_percent":
+            h = int(float(str(fields.get("VG033", "0") or "0")))
+            attrs["charged"] = bool(h & 2048)
+            attrs["basis"] = "app formula: 100 when VG033 bit 2048 (Charged), else int(VG098*100/VG104)"
         attrs["serial"] = self._entry.data.get("serial")
         attrs["frame_captured_at"] = (self.coordinator.data or {}).get("captured_at")
         return attrs
