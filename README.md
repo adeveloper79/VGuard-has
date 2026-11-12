@@ -1,5 +1,10 @@
 # V-Guard Smart Inverter — Home Assistant Integration
 
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=adeveloper79&repository=VGuard-has&category=integration)
+[![GitHub](https://img.shields.io/badge/github-adeveloper79/VGuard%2Dhas-blue.svg)](https://github.com/adeveloper79/VGuard-has)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 Unofficial Home Assistant integration for **V-Guard Smart / SMART PRO 1200 S** solar
 inverters (and compatible DUPS-family products) over the V-Guard NOUS cloud, using the
 same protocol as the official *V-Guard Smart 2.0* Android app.
@@ -23,6 +28,13 @@ same protocol as the official *V-Guard Smart 2.0* Android app.
 - Full raw `VG029` telemetry frame exposed as attributes
 - Bundled **Lovelace card** (`vguard-inverter-card.js`) auto-registered on install —
   no YAML or resource steps; add it from the card picker ("V-Guard Inverter Card")
+
+## Installation (HACS) — one click
+
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=adeveloper79&repository=VGuard-has&category=integration)
+
+Clicking the badge opens your Home Assistant, adds this repository to HACS as a custom
+integration, and lets you install it from there. Requires HACS to be set up.
 
 ## Installation (HACS)
 

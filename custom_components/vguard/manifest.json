@@ -1,12 +1,16 @@
 {
   "domain": "vguard",
   "name": "V-Guard Smart",
-  "codeowners": ["@vguard-local"],
+  "codeowners": [
+    "@adeveloper79"
+  ],
   "config_flow": true,
-  "documentation": "https://www.vguard.in/inverter/smart-inverter",
+  "documentation": "https://github.com/adeveloper79/VGuard-has",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://www.vguard.in/home/customer-care",
-  "loggers": ["vguard"],
+  "issue_tracker": "https://github.com/adeveloper79/VGuard-has/issues",
+  "loggers": [
+    "vguard"
+  ],
   "requirements": [],
   "version": "1.0.0"
 }
