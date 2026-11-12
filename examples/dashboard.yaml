@@ -1,0 +1,25 @@
+# Paste into Overview: Edit -> Add Card -> Entities / Glance / or use the bundled
+# "V-Guard Inverter Card" custom card (auto-registered by this integration).
+type: entities
+title: V-Guard Smart Pro 1200 S
+show_header_toggle: false
+entities:
+  - entity: binary_sensor.smart_pro_1200_s_online
+    name: Online
+  - entity: sensor.smart_pro_1200_s_battery_voltage
+  - entity: sensor.smart_pro_1200_s_grid_voltage
+  - entity: sensor.smart_pro_1200_s_output_voltage
+  - entity: sensor.smart_pro_1200_s_frequency
+  - entity: sensor.smart_pro_1200_s_load_current
+  - entity: sensor.smart_pro_1200_s_apparent_power
+  - entity: sensor.smart_pro_1200_s_wifi_rssi
+  - type: divider
+  - entity: switch.smart_pro_1200_s_turbo_charging
+  - entity: switch.smart_pro_1200_s_appliance_mode
+  - entity: switch.smart_pro_1200_s_holiday_mode
+  - entity: switch.smart_pro_1200_s_extra_backup_mode
+  - entity: switch.smart_pro_1200_s_grid_force_cut
+  - entity: select.smart_pro_1200_s_reserve_power_at
+  - entity: select.smart_pro_1200_s_force_cut_duration
+  - entity: select.smart_pro_1200_s_load_exceeds_alarm
+  - entity: button.smart_pro_1200_s_battery_type_unlock_30_min

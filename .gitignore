@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+.vscode/
+.idea/
+.DS_Store
+dist/
+build/
+*.egg-info/
+session.json
+*.db
+*.db-wal
+*.db-shm
+*.apk

@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "V-Guard Smart account",
+        "description": "Enter the mobile number of your V-Guard Smart account. An OTP will be sent via SMS.",
+        "data": {
+          "country_code": "Country code",
+          "mobile": "Mobile number"
+        }
+      },
+      "otp": {
+        "title": "Verify OTP",
+        "description": "Enter the OTP that was sent to your phone.",
+        "data": {
+          "otp": "OTP"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate",
+        "description": "Your V-Guard session has expired (e.g. after a login from the phone app). Press Submit to receive a fresh OTP.",
+        "data": {}
+      },
+      "reauth_otp": {
+        "title": "Verify OTP",
+        "description": "Enter the fresh OTP to re-link your V-Guard inverter.",
+        "data": {
+          "otp": "OTP"
+        }
+      }
+    },
+    "error": {
+      "otp_request_failed": "Could not request OTP. Check the mobile number and try again.",
+      "invalid_otp": "Invalid or expired OTP."
+    },
+    "abort": {
+      "no_products": "No products found on this account.",
+      "already_configured": "This inverter is already configured."
+    }
+  }
+}
