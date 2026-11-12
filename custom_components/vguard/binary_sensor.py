@@ -16,7 +16,7 @@ from .const import DOMAIN, MANUFACTURER
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
-    async_add_entities([VGuardOnlineSensor(coordinator, entry)])
+    async_add_entities([VGuardOnlineSensor(coordinator, entry), VGuardMainsSensor(coordinator, entry)])
 
 
 class VGuardOnlineSensor(CoordinatorEntity, BinarySensorEntity):
@@ -50,3 +50,44 @@ class VGuardOnlineSensor(CoordinatorEntity, BinarySensorEntity):
             "mac": fields.get("VG132"),
             "device_time": fields.get("VG109"),
         }
+
+
+class VGuardMainsSensor(CoordinatorEntity, BinarySensorEntity):
+    """Derived mains indicator: ON when reported grid voltage > 100 V.
+
+    The NOUS frame carries no explicit mains flag the app uses; mains presence
+    is inferred from the grid input voltage field (VG014).
+    """
+
+    def __init__(self, coordinator, entry):
+        super().__init__(coordinator)
+        self._entry = entry
+        self._attr_unique_id = f"{entry.entry_id}_mains"
+        self._attr_device_class = BinarySensorDeviceClass.POWER
+        self._attr_name = f"{entry.title} Mains"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.data.get("serial", entry.entry_id))},
+            name=entry.data.get("product_name", "V-Guard Inverter"),
+            manufacturer=MANUFACTURER,
+            model=entry.data.get("product_name", ""),
+        )
+
+    @property
+    def available(self):
+        data = self.coordinator.data or {}
+        if data.get("missing"):
+            return False
+        ts = data.get("captured_at")
+        return bool(ts) and (time.time() - ts) < 900
+
+    @property
+    def is_on(self):
+        fields = (self.coordinator.data or {}).get("fields") or {}
+        try:
+            return float(str(fields.get("VG014", "0")).strip()) > 100.0
+        except (TypeError, ValueError):
+            return None
+
+    @property
+    def extra_state_attributes(self):
+        return {"derived_from": "grid voltage (VG014) > 100 V"}

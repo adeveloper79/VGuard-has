@@ -6,6 +6,10 @@ show_header_toggle: false
 entities:
   - entity: binary_sensor.smart_pro_1200_s_online
     name: Online
+  - entity: binary_sensor.smart_pro_1200_s_mains
+    name: Mains
+  - entity: sensor.smart_pro_1200_s_battery_est
+    name: Battery (est.)
   - entity: sensor.smart_pro_1200_s_battery_voltage
   - entity: sensor.smart_pro_1200_s_grid_voltage
   - entity: sensor.smart_pro_1200_s_output_voltage

@@ -14,8 +14,9 @@ same protocol as the official *V-Guard Smart 2.0* Android app.
 - Automatic access-token refresh; automatic re-auth if the phone app logs the account out
 - Auto-discovers your inverter product via `my-products` (no serials to type)
 - **Sensors**: grid voltage, output voltage, battery voltage, frequency, load current,
-  apparent power, aux discharge, WiFi RSSI, energy counters
-- **Binary sensor**: online/offline (stale after > 15 min without data)
+  apparent power, aux discharge, WiFi RSSI, energy counters, battery % (voltage-derived ESTIMATE —
+  the VG029 frame carries no true SOC)
+- **Binary sensors**: online/offline (stale after > 15 min without data), derived mains indicator (grid voltage > 100 V)
 - **Switches**: Turbo Charging, Appliance Mode, Holiday Mode, Extra Backup Mode, Grid Force Cut
 - **Selects**: Night Forced Cut time, Force Cut duration, Load-exceeds alarm threshold
 - **Numbers**: Battery Backup / Performance sliders — inversely linked on the same `VG035` register (1–7)
