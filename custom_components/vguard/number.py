@@ -20,18 +20,30 @@ from .const import DOMAIN, MANUFACTURER
 @dataclass(frozen=True)
 class VGuardNumberDescription(NumberEntityDescription):
     vg: str = ""
+    invert: bool = False  # performance slider: shows 8 - VG035, writes VG035:(8 - n)
 
 
 NUMBERS = (
     VGuardNumberDescription(
-        key="backup_performance",
+        key="battery_backup_level",
         vg="VG035",
-        name="Backup / Performance level",
+        name="Battery Backup level",
         icon="mdi:battery-charging-outline",
         mode=NumberMode.SLIDER,
         native_min_value=1,
         native_max_value=7,
         native_step=1,
+    ),
+    VGuardNumberDescription(
+        key="performance_level",
+        vg="VG035",
+        name="Performance level",
+        icon="mdi:speedometer",
+        mode=NumberMode.SLIDER,
+        native_min_value=1,
+        native_max_value=7,
+        native_step=1,
+        invert=True,
     ),
 )
 
@@ -73,12 +85,17 @@ class VGuardNumber(CoordinatorEntity, NumberEntity):
 
     @property
     def native_value(self):
-        return self._frame_value()
+        v = self._frame_value()
+        if v is None:
+            return None
+        return (8.0 - v) if self.entity_description.invert else v
 
     async def async_set_native_value(self, value: float):
         step = int(round(value))
         if step < 1 or step > 7:
-            raise HomeAssistantError("Backup/Performance must be between 1 and 7")
+            raise HomeAssistantError("Level must be between 1 and 7")
+        if self.entity_description.invert:
+            step = 8 - step
         try:
             await self.coordinator.api.publish(f"{self.entity_description.vg}:{step}")
         except Exception as err:  # noqa: BLE001

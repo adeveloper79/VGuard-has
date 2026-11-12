@@ -18,7 +18,7 @@ same protocol as the official *V-Guard Smart 2.0* Android app.
 - **Binary sensor**: online/offline (stale after > 15 min without data)
 - **Switches**: Turbo Charging, Appliance Mode, Holiday Mode, Extra Backup Mode, Grid Force Cut
 - **Selects**: Night Forced Cut time, Force Cut duration, Load-exceeds alarm threshold
-- **Number**: Backup / Performance slider (1–7, `VG035`)
+- **Numbers**: Battery Backup / Performance sliders — inversely linked on the same `VG035` register (1–7)
 - **Button**: Battery-Type Unlock (30 min)
 - Full raw `VG029` telemetry frame exposed as attributes
 - Bundled **Lovelace card** (`vguard-inverter-card.js`) auto-registered on install —
@@ -94,7 +94,8 @@ Community reference for the OEM ESP firmware side (UART register map, ESPHome re
 | Holiday Mode | `VG100:1` / `VG100:0` | inverter economy mode while away |
 | Extra Backup Mode | `VG072:1` / `VG072:0` | reserve a charge slice for outages |
 | Grid Force Cut | `VG038:1` / `VG038:0` (+ `VG037:<minutes>` for duration) | grid-disconnect timer |
-| Backup / Performance level | `VG035:<1-7>` | maximum backup ↔ performance slider (inverse axis) |
+| Battery Backup level | `VG035:<n>` | backup-priority level (inverse axis) |
+| Performance level | `VG035:<n>` (8−n shown) | performance-priority level; inverse of Backup |
 | Night Forced Cut time | `VG219:<seconds>` | nightly grid cut-off schedule (8 slots) |
 | Day-time Load Usage | `VG185:1` / `VG185:0` | daytime economy on solar power |
 | Force Cut Duration | `VG037:<30/60/120/180/240>` | minutes |
