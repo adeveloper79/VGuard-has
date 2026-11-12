@@ -20,6 +20,12 @@ class VGuardPublishError(VGuardApiError):
     pass
 
 
+def _format_error(resp) -> str:
+    if isinstance(resp, dict):
+        return str(resp.get("message") or resp.get("error") or "request failed")
+    return "unexpected response"
+
+
 @dataclass
 class Frame:
     """Parsed VG029 telemetry frame."""
@@ -143,10 +149,10 @@ class VGuardApi:
                 return Frame(fields=frame, captured_at=time.time())
             return None  # latest-packet cache miss; not an error
         if status in (0, 401, 403):
-            raise VGuardApiError("NOUS subscribe failed: HTTP %s %s" % (status, resp))
+            raise VGuardApiError("NOUS subscribe failed: HTTP %s (%s)" % (status, _format_error(resp)))
         if status in (400, 404):
             return None
-        raise VGuardApiError("NOUS subscribe unexpected: HTTP %s %s" % (status, resp))
+        raise VGuardApiError("NOUS subscribe unexpected: HTTP %s (%s)" % (status, _format_error(resp)))
 
 
     async def publish(self, command: str) -> bool:
@@ -167,7 +173,7 @@ class VGuardApi:
         )
         if status == 200:
             return True
-        raise VGuardPublishError("publish failed: HTTP %s %s" % (status, resp))
+        raise VGuardPublishError("publish failed: HTTP %s (%s)" % (status, _format_error(resp)))
 
 
 def _pkcs7_pad(data: bytes, block: int = 16) -> bytes:

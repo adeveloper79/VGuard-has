@@ -32,6 +32,13 @@ class VGuardReserveCard extends HTMLElement {
     return Number.isFinite(v) ? v : null;
   }
 
+  _esc(str) {
+    if (str === undefined || str === null) return "";
+    return String(str).replace(/[&<>"']/g, (m) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[m]);
+  }
+
   static _NIGHT_SLOTS = [
     ["No Force Cut", "No Force Cut"],
     ["06:00 PM", "06:00 PM"],
@@ -56,18 +63,18 @@ class VGuardReserveCard extends HTMLElement {
 
     const slider = (label, value, entityId, min, max, minCap, maxCap) => `
       <div class="slider-block">
-        <div class="slider-head"><span>${label}</span><span class="val">${value === null ? "–" : value + " / " + max}</span></div>
+        <div class="slider-head"><span>${this._esc(label)}</span><span class="val">${value === null ? "–" : this._esc(value + " / " + max)}</span></div>
         <div class="slider-row">
-          <span class="cap lo">${minCap}</span>
+          <span class="cap lo">${this._esc(minCap)}</span>
           <input type="range" min="${min}" max="${max}" step="1" value="${value === null ? 1 : value}"
-                 data-entity="${entityId || ""}" ${entityId ? "" : "disabled"}/>
-          <span class="cap hi">${maxCap}</span>
+                 data-entity="${this._esc(entityId || "")}" ${entityId ? "" : "disabled"}/>
+          <span class="cap hi">${this._esc(maxCap)}</span>
         </div>
       </div>`;
 
     const chips = VGuardReserveCard._NIGHT_SLOTS.map(([label]) => {
       const active = nightSel === label;
-      return `<button class="slot${active ? " on" : ""}" data-option="${label}" data-entity="${nightId || ""}">${label}</button>`;
+      return `<button class="slot${active ? " on" : ""}" data-option="${this._esc(label)}" data-entity="${this._esc(nightId || "")}">${this._esc(label)}</button>`;
     }).join("");
 
     this.shadowRoot.innerHTML = `
@@ -93,7 +100,7 @@ class VGuardReserveCard extends HTMLElement {
         .foot { margin-top: 10px; font-size: 10px; color: var(--secondary-text-color, #727272); }
       </style>
       <ha-card>
-        <div class="head"><div class="title">${this._config.title}</div></div>
+        <div class="head"><div class="title">${this._esc(this._config.title)}</div></div>
         <div class="note">Battery save and Inverter performance are inversely proportional to each other.</div>
 
         ${slider("Performance", perf, perfId, 1, 7, "Low", "High")}

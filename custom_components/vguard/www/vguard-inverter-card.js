@@ -29,16 +29,27 @@ class VGuardInverterCard extends HTMLElement {
     return this._hass.states[id];
   }
 
+  _esc(str) {
+    if (str === undefined || str === null) return "";
+    return String(str).replace(/[&<>"']/g, (m) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[m]);
+  }
+
   _fmt(v, unit) {
     if (v === undefined || v === null) return "–";
-    if (typeof v === "number") return (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1)) + (unit ? "" + unit : "");
-    const n = Number(v);
-    if (!Number.isNaN(n)) return (Math.abs(n) >= 100 ? n.toFixed(0) : n.toFixed(1)) + (unit || "");
-    return String(v);
+    let formatted;
+    if (typeof v === "number") formatted = (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1)) + (unit ? "" + unit : "");
+    else {
+      const n = Number(v);
+      if (!Number.isNaN(n)) formatted = (Math.abs(n) >= 100 ? n.toFixed(0) : n.toFixed(1)) + (unit || "");
+      else formatted = String(v);
+    }
+    return this._esc(formatted);
   }
 
   _tile(label, value, unit, accent) {
-    return `<div class="tile${accent ? " accent" : ""}"><div class="tval">${this._fmt(value, unit)}</div><div class="tlabel">${label}</div></div>`;
+    return `<div class="tile${accent ? " accent" : ""}"><div class="tval">${this._fmt(value, unit)}</div><div class="tlabel">${this._esc(label)}</div></div>`;
   }
 
   _chip(label, stateId, iconOn, iconOff) {
@@ -46,7 +57,7 @@ class VGuardInverterCard extends HTMLElement {
     const on = st && st.state === "on";
     const icon = on ? iconOn : iconOff;
     const cls = "chip" + (on ? " on" : "");
-    return `<button class="${cls}" data-entity="${stateId || ""}"><ha-icon icon="${icon}"></ha-icon><span>${label}</span></button>`;
+    return `<button class="${cls}" data-entity="${this._esc(stateId || "")}"><ha-icon icon="${this._esc(icon)}"></ha-icon><span>${this._esc(label)}</span></button>`;
   }
 
   _render() {
@@ -93,13 +104,13 @@ class VGuardInverterCard extends HTMLElement {
       </style>
       <ha-card>
         <div class="head">
-          <div class="title">${this._config.title}</div>
+          <div class="title">${this._esc(this._config.title)}</div>
           <div class="dot"><span></span>${online ? "Online" : "Offline"}</div>
         </div>
 
         <div class="barrow">
           <ha-icon icon="mdi:battery"></ha-icon>
-          <div><div class="bign">${batteryPct === null ? "–" : batteryPct + "%"}</div><div class="bstatus">${battStatus}</div></div>
+          <div><div class="bign">${batteryPct === null ? "–" : batteryPct + "%"}</div><div class="bstatus">${this._esc(battStatus)}</div></div>
         </div>
 
         <div class="grid">
