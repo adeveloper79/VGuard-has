@@ -54,6 +54,10 @@ class VGuardInverterCard extends HTMLElement {
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
     const onlineId = this._eid("binary_sensor", "online");
     const online = onlineId && this._hass.states[onlineId] && this._hass.states[onlineId].state === "on";
+    const batState = this._state("sensor", "battery");
+    const batteryPct = batState ? Math.round(Number(batState)) : null;
+    const charged = batState && batState.attributes && batState.attributes.charged === true;
+    const battStatus = charged ? "Charged" : (batteryPct !== null && batteryPct >= 97 ? "Charged" : "Charging / Discharging");
     const s = (d, k) => {
       const st = this._state(d, k);
       return st ? st.state : null;
@@ -67,6 +71,10 @@ class VGuardInverterCard extends HTMLElement {
         .title { font-size: 15px; font-weight: 600; color: var(--primary-text-color, #21313c); }
         .dot { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--secondary-text-color, #727272); }
         .dot span { width: 10px; height: 10px; border-radius: 50%; background: ${online ? "#4caf50" : "#e53935"}; display: inline-block; }
+        .barrow { display: flex; align-items: center; gap: 14px; background: radial-gradient(circle at 40% 35%, #173a10, #0c1f08); border: 2px solid #39ff14; border-radius: 14px; padding: 10px 16px; margin-bottom: 10px; }
+        .barrow ha-icon { --mdi-icon-size: 44px; color: #39ff14; }
+        .bign { font-size: 34px; font-weight: 800; color: #e8ffe0; font-variant-numeric: tabular-nums; line-height: 1; }
+        .bstatus { font-size: 12px; color: #9fe08a; margin-top: 2px; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .tile { background: var(--secondary-background-color, #f3f6f9); border-radius: 10px; padding: 10px 8px; text-align: center; }
         .tile.accent { background: var(--primary-color, #ff9800); color: #fff; }
@@ -84,6 +92,11 @@ class VGuardInverterCard extends HTMLElement {
         <div class="head">
           <div class="title">${this._config.title}</div>
           <div class="dot"><span></span>${online ? "Online" : "Offline"}</div>
+        </div>
+
+        <div class="barrow">
+          <ha-icon icon="mdi:battery"></ha-icon>
+          <div><div class="bign">${batteryPct === null ? "–" : batteryPct + "%"}</div><div class="bstatus">${battStatus}</div></div>
         </div>
 
         <div class="grid">

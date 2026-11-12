@@ -30,27 +30,38 @@ async def async_setup(hass: HomeAssistant, config) -> bool:
 async def _async_register_card(hass: HomeAssistant) -> None:
     import os
 
-    card_path = os.path.join(os.path.dirname(__file__), "www", "vguard-inverter-card.js")
-    if not os.path.exists(card_path):
-        _LOGGER.warning("vguard-inverter-card.js not found next to integration; skipping card registration")
-        return
+    cards = [
+        ("vguard-inverter-card.js", "/vguard/vguard-inverter-card.js?v=1.1.0"),
+        ("vguard-reserve-card.js", "/vguard/vguard-reserve-card.js?v=1.0.0"),
+    ]
+    www_dir = os.path.join(os.path.dirname(__file__), "www")
+    paths = [(file_name, url) for file_name, url in cards
+             if os.path.exists(os.path.join(www_dir, file_name))]
+    static_ok = False
     try:
         from homeassistant.components.http import StaticPathConfig
 
         await hass.http.async_register_static_paths(
-            [StaticPathConfig("/vguard/vguard-inverter-card.js", card_path, cache_headers=False)]
+            [StaticPathConfig(url.split("?")[0], os.path.join(www_dir, file_name), cache_headers=False)
+             for file_name, url in paths]
         )
+        static_ok = True
     except Exception as err:  # noqa: BLE001
         _LOGGER.debug("static_paths API unavailable, trying legacy: %s", err)
         try:
-            hass.http.register_static_path("/vguard/vguard-inverter-card.js", card_path, cache_headers=False)
+            for file_name, url in paths:
+                hass.http.register_static_path(url.split("?")[0], os.path.join(www_dir, file_name), cache_headers=False)
+            static_ok = True
         except Exception as err2:  # noqa: BLE001
             _LOGGER.warning("card static path registration failed: %s", err2)
-            return
+    if not static_ok:
+        return
+    urls = [url for _, url in paths]
     try:
         from homeassistant.components.frontend import add_extra_js_url
 
-        add_extra_js_url(hass, "/vguard/vguard-inverter-card.js")
+        for url in urls:
+            add_extra_js_url(hass, url)
         return
     except Exception as err:  # noqa: BLE001
         _LOGGER.debug("add_extra_js_url unavailable, trying lovelace resources: %s", err)
@@ -58,15 +69,15 @@ async def _async_register_card(hass: HomeAssistant) -> None:
         lovelace = hass.data.get("lovelace")
         resources = getattr(lovelace, "resources", None) if lovelace else None
         if resources is None:
-            _LOGGER.warning("lovelace resources API not found; add /vguard/vguard-inverter-card.js as a module resource manually")
+            _LOGGER.warning("lovelace resources API not found; add the cards as module resources manually")
             return
         items = await resources.async_items()
-        url = "/vguard/vguard-inverter-card.js?v=1.0.0"
-        if any(str(i.get("url", "")).startswith("/vguard/vguard-inverter-card.js") for i in items):
-            return
-        await resources.async_create_item({"res_type": "module", "url": url})
+        existing = [str(i.get("url", "")) for i in items]
+        for url in urls:
+            if not any(u.startswith(url.split("?")[0]) for u in existing):
+                await resources.async_create_item({"res_type": "module", "url": url})
     except Exception as err:  # noqa: BLE001
-        _LOGGER.warning("card resource registration failed; add /vguard/vguard-inverter-card.js as a module resource manually: %s", err)
+        _LOGGER.warning("card resource registration failed; add the cards as module resources manually: %s", err)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
